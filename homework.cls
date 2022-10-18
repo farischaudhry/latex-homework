@@ -179,47 +179,26 @@
 
 % --------[ EXERCISES ]---------------------------------------------------------
 
-\newaliascnt{exercise}{section} % so \autoref associates correct name with label
-\providecommand{\exercisename}{Exercise}
+\newcounter{exercise}
+\setcounter{exercise}{0}
 
-\let\exercisemark\@gobble
-\let\toclevel@exercise\toclevel@section % for PDF bookmarks
-
-% disables numbering for exercises, for both actual headers and in TOC
-\def\l@exercise#1#2{\begingroup\let\numberline\@gobble\l@section{#1}{#2}\endgroup} % tex.stackexchange.com/a/62117
-\def\@nonumsexercise{}
-\def\@seccntformat#1{% www.texfaq.org/FAQ-seccntfmt
-    \ifcsname @nonums#1\endcsname\else%
-        \csname the#1\endcsname\quad% default behavior for other section types, from ltsect.dtx
-    \fi%
+\newcounter{subexercise}
+\setcounter{subexercise}{-1}
+\renewcommand\thesubexercise{\alph{subexercise}}%
+\newcommand\exercise{%
+  \par\noindent
+  \ifnum\value{subexercise}>-1
+    \refstepcounter{subexercise}%
+    \llap{\thesubexercise)\quad}%
+  \else
+    \refstepcounter{exercise}%
+    \llap{\theexercise)\quad}%
+  \fi
 }
-
-\newcommand{\@exercisesection}{% copied from article.cls and modified
-    \@startsection%
-        {exercise}{1}{\z@}%
-        {-3.5ex \@plus -1ex \@minus -.2ex}%
-        {2.3ex \@plus.2ex}%
-        {\normalfont\Large\bfseries}%
-}
-\newcommand*{\@exercise}[1][\@nil]{% tex.stackexchange.com/a/217763
-    \def\@arg{#1}%
-    \begingroup\edef\x{\endgroup% expands exercise counter for \nameref: tex.stackexchange.com/a/569405
-        \noexpand\@exercisesection{%
-            \exercisename{} % note: space
-            \ifx\@arg\@nnil\the\numexpr\value{exercise}+1\else#1\fi%
-        }%
-    }\x%
-}
-\newcommand{\exercise}{\@ifstar{%
-    \@exercise%
-}{%
-    \ifnum\theexercise>0\newpage\fi%
-    \@exercise%
-}}
-
-\if@localnums
-    \counterwithin{equation}{section} % resets equation counter for each section/exercise
-\fi
+\newenvironment{subexercises}%
+  {\refstepcounter{exercise}%
+    \setcounter{subexercise}{0}}
+  {\setcounter{subexercise}{-1}}
 
 
 % --------[ THEOREMS ]----------------------------------------------------------
@@ -299,3 +278,6 @@
 \newcommand{\Q}{\mathbb Q}
 \newcommand{\R}{\mathbb R}
 \newcommand{\C}{\mathbb C}
+
+\newenvironment{qedproof}{\begin{proof}[\nopunct\unskip]}{\end{proof} $ $\newline}
+\newenvironment{noqedproof}{\begin{qedproof}\let\qed\relax}{\end{noqedproof}}
